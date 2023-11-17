@@ -20,6 +20,8 @@ typedef vector<ll> vl;
 #define each(x, a) for (auto &x : a)
 #define rep(i, n) for (auto i = 0; i < (n); i++)
 #define endl '\n'
+const ll INF=INT64_MAX;
+const ld PI=acosl(-1);
 
 ll gcd(ll a, ll b){ 
     return b ? gcd(b, a % b) : a; 
@@ -75,13 +77,6 @@ bool is_prime(ull n){
     return T(2) && T(325) && T(9375) && T(28178) && T(450775) && T(9780504) && T(1795265022);
 #undef T
 }
-bool is_prime1(ull n){
-    if(n==1) return false;
-    for(ll i=2;i*i<=n;i++){
-        if(n%i==0) return false;
-    }
-    return true;
-}
 ll pollard_rho(ll n){
     random_device rd;
     mt19937 gen(rd());
@@ -113,6 +108,15 @@ void factorize(ll n, map<ll, ll> &fl){
         factorize(n / f, fl);
     }
 }
+void seive(ll n,vl& P){
+    vector<bool> IP;
+	IP.resize(n+1,true);
+    for (ll i=2;i*i<=n;i++){
+        if (!IP[i]) continue;
+        for (ll j=i*i;j<=n;j+=i) IP[j]=0;
+    }
+    for (ll i=2;i<=n;i++) if(IP[i]) P.push_back(i);
+}
 
 int main(){
     ios::sync_with_stdio(0);
@@ -125,16 +129,10 @@ int main(){
     Regarding the number of divisors, a useful thing for programming contests is to search OEIS for "Maximal number of divisors",
     The number is 1344 for integers up to 1e9
     */
-    
-    /*sieve of eratosthenes*/
-    vector<bool> IP;
-	IP.resize(n+1,true);
-    for (ll i=2;i*i<=n;i++){
-        if (!IP[i]) continue;
-        for (ll j=i*i;j<=n;j+=i) IP[j]=0;
-    }
+
+    ll n; cin>>n;
     vl P;
-    for (ll i = 2; i <= n; i++) if(IP[i]) P.push_back(i);
+    seive(n,P);
     /*
     Regarding 𝜋(𝑛), the  number of primes less than n, it is conjectured to be approximately n/ln(n)
     */

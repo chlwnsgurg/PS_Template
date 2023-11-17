@@ -20,7 +20,6 @@ typedef vector<ll> vl;
 #define each(x, a) for (auto &x : a)
 #define rep(i, n) for (auto i = 0; i < (n); i++)
 #define endl '\n'
-
 const ll INF=INT64_MAX;
 
 // segment tree for range minimum query
@@ -72,84 +71,82 @@ struct SegmentTree{
 
 // segment tree with lazy propagation for range sum query
 struct LSegmentTree{
-    ll N;
+    ll cap;
     vl tree,lzy;
     LSegmentTree(vl& A, ll n){
-        N=n;
-        tree.resize(4*n);
-        lzy.resize(4*n);
-        init(A,0,n-1,1);
-    }
-    ll init(vl& A, ll l, ll r, ll node){
-        if(l==r) return tree[node]=A[l];
-        ll mid=(l+r)/2;
-        ll lsum=init(A,l,mid,2*node);
-        ll rsum=init(A,mid+1,r,2*node+1);
-        return tree[node]=lsum+rsum;
-    }
-    void relax(ll l, ll r, ll node){
-        if (lzy[node]==0) return;
-        if (l<r){
-            ll mid=(l+r)/2;
-            tree[2*node]+=(mid-l+1)*lzy[node];
-            lzy[2*node]+=lzy[node];
-            tree[2*node+1]+=(r-mid) * lzy[node];
-            lzy[2*node+1]+=lzy[node];
+        cap=1; while(cap<n) cap*=2;
+        tree.resize(2*cap);
+        lzy.resize(2*cap);
+        for(ll i=0;i<n;i++) tree[cap+i]=A[i];
+        for(ll i=n;i<cap;i++) tree[cap+i]=0;
+        for(ll i=cap-1;i>0;i--){
+            tree[i]=tree[2*i]+tree[2*i+1];
         }
-        lzy[node] = 0;
     }
-    ll qry(ll ql, ll qr, ll l, ll r,ll node){
-        if (r<ql||qr<l) return 0;
-        if (ql<=l&&r<=qr) return tree[node];
-        relax(l, r, node);
-        ll mid=(l+r)/2;
-        return qry(ql,qr,l,mid,2*node)+qry(ql,qr,mid+1,r,2*node+1);
+    void relax(ll L, ll R, ll N){
+        if (lzy[N]==0) return;
+        if (L<R){
+            ll M=(L+R)/2;
+            tree[2*N]+=(M-L+1)*lzy[N];
+            lzy[2*N]+=lzy[N];
+            tree[2*N+1]+=(R-M)*lzy[N];
+            lzy[2*N+1]+=lzy[N];
+        }
+        lzy[N] = 0;
     }
-    ll qry(ll ql,ll qr) {return qry(ql,qr,0,N-1,1);}
-    void upd(ll ql, ll qr, ll val, ll l, ll r,ll node){
-        if (r<ql||qr<l) return;
-        if (ql<=l&&r<=qr){
-            tree[node]+=(r-l+1)*val;
-            lzy[node]+=val;
+    ll qry(ll l, ll r, ll L, ll R,ll N){
+        if (R<l||r<L) return 0;
+        if (l<=L&&R<=r) return tree[N];
+        relax(L, R, N);
+        ll M=(L+R)/2;
+        return qry(l,r,L,M,2*N)+qry(l,r,M+1,R,2*N+1);
+    }
+    ll qry(ll l,ll r) {return qry(l,r,0,cap-1,1);}
+    void upd(ll l, ll r, ll val, ll L, ll R,ll N){
+        if (R<l||r<L) return;
+        if (l<=L&&R<=r){
+            tree[N]+=(R-L+1)*val;
+            lzy[N]+=val;
             return;
         }
-        relax(l, r, node);
-        ll mid=(l+r)/2;
-        upd(ql,qr,val,l,mid,2*node);
-        upd(ql,qr,val,mid+1,r,2*node+1);
-        tree[node]=tree[2*node]+tree[2*node+1];
+        relax(L,R,N);
+        ll M=(L+R)/2;
+        upd(l,r,val,L,M,2*N);
+        upd(l,r,val,M+1,R,2*N+1);
+        tree[N]=tree[2*N]+tree[2*N+1];
         return;
     }
-    void upd(ll ql, ll qr, ll val) {upd(ql,qr,val,0,N-1,1);}
+    void upd(ll l, ll r, ll val) {upd(l,r,val,0,cap-1,1);}
 };
 
+// persistent segment tree for range sum query
 struct PSegmentTree{
-    int cap;    
+    ll cap;    
     vector<vector<tuple<ll,ll,ll>>> tree;
     PSegmentTree(vl& A, ll n){
         cap=1; while(cap<n) cap*=2;
         tree.resize(2*cap);
-        for(int i=0;i<n;i++) tree[cap+i].emplace_back(A[i],0,0);
-        for(int i=n;i<cap;i++) tree[cap+i].emplace_back(0,0,0);
-        for(int i=cap-1;i>0;i--){
+        for(ll i=0;i<n;i++) tree[cap+i].emplace_back(A[i],0,0);
+        for(ll i=n;i<cap;i++) tree[cap+i].emplace_back(0,0,0);
+        for(ll i=cap-1;i>0;i--){
             tree[i].emplace_back(get<0>(tree[i*2][0])+get<0>(tree[i*2+1][0]),0,0);
         }
     }
-    void upd(int idx,ll val){
+    void upd(ll idx,ll val){
         idx+=cap;
         tree[idx].emplace_back(val,0,0);
         for(idx = idx / 2; idx > 0; idx/=2){
             tree[idx].emplace_back(get<0>(tree[idx*2].back())+get<0>(tree[idx*2+1].back()),tree[idx*2].size()-1,tree[idx*2+1].size()-1);
         }
     }
-    ll qry(int t,int l,int r,int N,int L,int R){
+    ll qry(ll t,ll l,ll r,ll L,ll R,ll N){
         if(l>R||L>r)return 0;
         if(l<=L&&R<=r)return get<0>(tree[N][t]);
-        int M=(L+R)>>1;
-        return qry(get<1>(tree[N][t]),l,r,N*2,L,M)+qry(get<2>(tree[N][t]),l,r,N*2+1,M+1,R);
+        ll M=(L+R)/2;
+        return qry(get<1>(tree[N][t]),l,r,L,M,N*2)+qry(get<2>(tree[N][t]),l,r,M+1,R,N*2+1);
     }
-    ll qry(int t,int l,int r){
-        return qry(t,l,r,1,0,cap-1);
+    ll qry(ll t,ll l,ll r){
+        return qry(t,l,r,0,cap-1,1);
     }
 };
 
@@ -197,20 +194,30 @@ struct MergeSortTree{
     }
 };
 
-const ll MAXN=1e6;
-const ll sqrtN=1000;
+struct DisjointSet{
+    vl par;
+    DisjointSet(ll n){
+        par.resize(n,-1);
+    }
+    ll fin(ll a){
+        if(par[a]<0) return a;
+        else return par[a]=fin(par[a]); // path compression
+    };
+    void uni(ll a,ll b){
+        a=fin(a); b=fin(b);
+        if(a!=b){
+            if(-par[a]<-par[b]) swap(a,b); // union by size
+            par[a]+=par[b];
+            par[b]=a;
+        }
+    };
 
-struct Query{
-	ll idx,s,e;
-    bool operator<(Query &x) const {
-		if(s/sqrtN != x.s/sqrtN) return s/sqrtN < x.s/sqrtN;
-		return e < x.e;
-	}
 };
 
 int main(){
     ios::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
+    
     ll n; cin>>n;
     vl A(n); each(x,A) cin>>x;
     SegmentTree ST(A,n);
@@ -229,30 +236,21 @@ int main(){
             cout<<ST.qry(i,j).S<<endl;
         }
     }
-
-    //Mo's Algorithm
-    ll q; cin>>q;
-    vector<Query> Q(q);
-    for(ll i=0;i<q;i++){
-		cin>>Q[i].s>>Q[i].e;
-        Q[i].s--; Q[i].e--;
-		Q[i].idx=i;
-	}
-    sort(Q.begin(), Q.end());
-    vector<int> A(q);
-    ll s = Q[0].s, e = Q[0].e;
-    ll res=0;
-	for(ll i=s; i<=e; i++){
-        
-	}
-	A[Q[0].idx] = res;
-	for(ll i=1; i<q; i++){
-		while(s < Q[i].s) ;
-		while(s > Q[i].s) ;
-		while(e < Q[i].e) ;
-		while(e > Q[i].e) ;
-		A[Q[i].idx] = res;
-	}
-
+    
+    ll n; cin>>n;
+    DisjointSet DS(n);
+    while(q--){
+        ll op; cin>>op;
+        if(op==0){
+            ll a,b; cin>>a>>b;
+            DS.uni(a,b);
+        }
+        if(op==1){
+            ll a,b; cin>>a>>b;
+            if(DS.fin(a)==DS.fin(b)) cout<<"YES"<<endl;
+            else cout<<"NO"<<endl;
+        }
+    }
+    
     return 0;
 }

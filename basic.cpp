@@ -20,6 +20,7 @@ typedef vector<ll> vl;
 #define each(x, a) for (auto &x : a)
 #define rep(i, n) for (auto i = 0; i < (n); i++)
 #define endl '\n'
+const ll INF=INT64_MAX;
 
 int main(){
     ios::sync_with_stdio(0);
