@@ -17,8 +17,8 @@ typedef vector<ll> vl;
 #define S second
 #define pb(x) push_back(x) 
 #define all(x) (x).begin(), (x).end()
-#define each(x, a) for (auto &x : a)
-#define rep(i, n) for (auto i = 0; i < (n); i++)
+#define each(x,a) for (auto &x : a)
+#define rep(i,n) for (auto i = 0; i < (n); i++)
 #define endl '\n'
 const ll INF=INT64_MAX;
 
