@@ -32,15 +32,15 @@ struct SegmentTree{
         for(ll i=0;i<n;i++) tree[cap+i]={A[i],i};
         for(ll i=n;i<cap;i++) tree[cap+i]={INF,-1};
         for(ll i=cap-1;i>0;i--){
-            if(tree[2*i].F<=tree[2*i+1].F) tree[i]=tree[2*i];
+            if(tree[2*i].first<=tree[2*i+1].first) tree[i]=tree[2*i];
             else tree[i]=tree[2*i+1];
         }
     }
     void upd(ll idx, ll val){
         idx+=cap;
-        tree[idx].F=val;
+        tree[idx].first=val;
         for(idx = idx / 2; idx > 0; idx/=2){
-            if(tree[2*idx].F<=tree[2*idx+1].F) tree[idx]=tree[2*idx];
+            if(tree[2*idx].first<=tree[2*idx+1].first) tree[idx]=tree[2*idx];
             else tree[idx]=tree[2*idx+1];
         }
 
@@ -50,16 +50,16 @@ struct SegmentTree{
         pll ret={INF,-1};
         while(l<=r){
             if(l%2==1){
-                if(ret.F>=tree[l].F){
-                    ret.F=tree[l].F;
-                    ret.S=tree[l].S;
+                if(ret.first>=tree[l].first){
+                    ret.first=tree[l].first;
+                    ret.second=tree[l].second;
                 }
                 l++;
             }
             if(r%2==0){
-                if(ret.F>=tree[r].F){
-                    ret.F=tree[r].F;
-                    ret.S=tree[r].S;
+                if(ret.first>=tree[r].first){
+                    ret.first=tree[r].first;
+                    ret.second=tree[r].second;
                 }
                 r--;
             }
@@ -233,7 +233,7 @@ int main(){
         if(op==2){
             ll i,j; cin>>i>>j;
             i--; j--;
-            cout<<ST.qry(i,j).S<<endl;
+            cout<<ST.qry(i,j).second<<endl;
         }
     }
     
