@@ -41,16 +41,16 @@ int main(){
     pq.push({0,0});
     while(!pq.empty()){
         ll cur=pq.top().second;
-        ll wgt=-pq.top().first;
+        ll dist=-pq.top().first;
         pq.pop();
         if(inMST[cur]) continue;
-        ans+=wgt;
+        ans+=dist;
         inMST[cur]=true;
         for(ll i=0;i<adj[cur].size();i++){
             ll nxt=adj[cur][i].first;
-            ll nwgt=adj[cur][i].second;
+            ll ndist=adj[cur][i].second;
             if(!inMST[nxt]){
-                pq.push({-nwgt,nxt});
+                pq.push({-ndist,nxt});
             }
         }
     }
