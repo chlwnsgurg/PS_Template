@@ -27,8 +27,8 @@ int main(){
     ios::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
     ll v,e;cin>>v>>e;
-    ll start; cin>>start;
-    start--;
+    ll src; cin>>src;
+    src--;
     vector<vector<pll>> adj(v);
     for(ll i=0;i<e;i++){
         ll u,v,w; cin>>u>>v>>w;
@@ -37,8 +37,8 @@ int main(){
     }
     vl dist(v,INF);
     priority_queue<pll> pq;
-    dist[start]=0;
-    pq.push({0,start});
+    dist[src]=0;
+    pq.push({0,src});
     while (!pq.empty()){
         ll cdist = -pq.top().first;
         ll cur = pq.top().second;

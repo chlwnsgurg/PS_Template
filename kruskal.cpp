@@ -46,29 +46,29 @@ struct DisjointSet{
 int main(){
     ios::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
-    ll v,e;cin>>v>>e;
-    vector<vector<pll>> adj(v);
-    for(ll i=0;i<e;i++){
-        ll a,b,c;
-        cin>>a>>b>>c;
-        a--; b--;
-        adj[a].push_back({b,c});
-        adj[b].push_back({a,c});
+    ll n,m;cin>>n>>m;
+    vector<vector<pll>> adj(n);
+    for(ll i=0;i<m;i++){
+        ll u,v,w;
+        cin>>u>>v>>w;
+        u--; v--;
+        adj[u].push_back({v,w});
+        adj[v].push_back({u,w});
     }
     vector<pair<ll,pll>> E;
-    for(ll i=0;i<v;i++){
+    for(ll i=0;i<n;i++){
         for(ll j=0;j<adj[i].size();j++){
             E.push_back({adj[i][j].second,{i,adj[i][j].first}});
         }
     }
     sort(all(E));
-    DisjointSet DS(v);
+    DisjointSet DS(n);
     ll ans=0;
     for(ll i=0;i<E.size();i++){
-        ll a=E[i].second.first,b=E[i].second.second,wgt=E[i].first;
-        if(DS.fin(a)==DS.fin(b)) continue;
-        ans+=wgt;
-        DS.uni(a,b);
+        ll u=E[i].second.first,v=E[i].second.second,w=E[i].first;
+        if(DS.fin(u)==DS.fin(v)) continue;
+        ans+=w;
+        DS.uni(u,v);
     }
     cout<<ans<<endl;
     return 0;
